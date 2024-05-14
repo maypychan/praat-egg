@@ -15,7 +15,11 @@ The Praat script was written in Praat version 6.1.53. Please install a version o
 > I have yet to test the script on a Mac, so I am not sure whether that might cause errors. Presumably the main problem there would be the direction of slashes in the directory path - like any other Praat script.
   
 ## Details
-The script reads all the files with a ".wav" extension in a given folder with only EGG files, and optionally also reads in corresponding ".TextGrid" files of the same name. The script generates two ".csv" files, one called "EGG.csv", and the other called "EGG_deriv.csv".
+The script reads all the files with a ".wav" extension in a given folder with only EGG files, and optionally also reads in corresponding ".TextGrid" files of the same name. The script generates three ".csv" files, one called "EGG.csv", one called "EGG_deriv.csv", the last called "EGG_sq.csv".
+
+* "EGG.csv" includes CQ, OQ, F0, Energy at peak measurements.
+* "EGG_deriv.csv" also includes PIC and PDC information.
+* "EGG_sq.csv" includes SQ measurements.
 
 The first part of the script includes a form where you may adjust your pitch settings, high-pass / low-pass filter settings, egg settings and indicate whether you have corresponding TextGrids. To begin with, please enter a folder path in the 'directory' part of the form.
 
