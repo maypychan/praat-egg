@@ -1,7 +1,7 @@
 #########################
 #### May Pik Yu Chan ####
 ## pikyu@sas.upenn.edu ##
-# last edited: 01/07/24 #
+# last edited: 05/13/24 #
 #########################
 
 form Directory:
@@ -27,6 +27,7 @@ form Directory:
 	natural	smoothing 100
 	positive closing_threshold 0.30
 	positive peak_threshold 0.05
+	positive sq_threshold 0.10
 
 	comment which tier? (0 if none):
 	real tier 1
@@ -47,11 +48,15 @@ number_files = Get number of strings
 
 output_file$ = "EGG.csv"
 writeFile: output_file$
-appendFile: output_file$, "Filename", ",", "TgInterval", ",", "TgIntvlLabel", ",", "GlotInterval", ",", "GlotNextInterval", ",", "c_starttime", ",", "c_endtime", ",", "o_endtime", ",", "c_dur", ",", "o_dur", ",", "cq", ",", "oq", ",", "sq", ",", "p_pascal", ",", "f0_midpoint", newline$
+appendFile: output_file$, "Filename", ",", "TgInterval", ",", "TgIntvlLabel", ",", "GlotInterval", ",", "GlotNextInterval", ",", "c_starttime", ",", "c_endtime", ",", "o_endtime", ",", "c_dur", ",", "o_dur", ",", "cq", ",", "oq", ",", "closing/opening", ",", "p_pascal", ",", "f0_midpoint", newline$
 
 output_file_deriv$ = "EGG_deriv.csv"
 writeFile: output_file_deriv$
-appendFile: output_file_deriv$, "Filename", ",", "TgInterval", ",", "TgIntvlLabel", ",", "GlotInterval", ",", "GlotNextInterval", ",", "c_starttime", ",", "c_endtime", ",", "o_endtime", ",", "c_dur", ",", "o_dur", ",", "cq", ",", "oq", ",", "sq", ",", "p_pascal", ",", "pic", ",", "pdc", ",", "f0_midpoint", newline$
+appendFile: output_file_deriv$, "Filename", ",", "TgInterval", ",", "TgIntvlLabel", ",", "GlotInterval", ",", "GlotNextInterval", ",", "c_starttime", ",", "c_endtime", ",", "o_endtime", ",", "c_dur", ",", "o_dur", ",", "cq", ",", "oq", ",", "closing/opening", ",", "p_pascal", ",", "pic", ",", "pdc", ",", "f0_midpoint", newline$
+
+output_file_sq$ = "EGG_sq.csv"
+writeFile: output_file_sq$
+appendFile: output_file_sq$, "Filename", ",", "TgInterval", ",", "TgIntvlLabel", ",", "OpeningInterval", ",", "ClosingInterval", ",", "c_starttime", ",", "c_endtime", ",", "o_starttime", ",", "o_endtime", ",", "c_dur", ",", "o_dur", ",", "sq", newline$
 
 for j from 1 to number_files
 
@@ -93,10 +98,151 @@ for j from 1 to number_files
 		objName$ = selected$()
 		x = startsWith(objName$, "Electroglottogram")
 	endwhile
-
 	tg_CI = Into TextGrid
 	#Save as text file: directory$ + "/" + filename$ + "_CGintervals.TextGrid"
 	removeObject: closedIs
+
+############# SQ ##############
+
+	#Get closed glottis intervals for SQ - bottom threshold
+	selectObject: eggfilter
+	closedIs_sq = nocheck Get closed glottis intervals: pitch_min, pitch_max, sq_threshold, peak_threshold
+
+	objName$ = selected$()
+	p_sq = 0.01
+	x_sq = startsWith(objName$, "Electroglottogram")
+
+	while x_sq == 1
+		closedIs_sq = nocheck Get closed glottis intervals: pitch_min, pitch_max, sq_threshold, peak_threshold + p
+		nocheck tg_CI_sq = Into TextGrid
+		p_sq = p + 0.01
+		objName$ = selected$()
+		x_sq = startsWith(objName$, "Electroglottogram")
+	endwhile
+	tg_CI_sq = Into TextGrid
+	removeObject: closedIs_sq
+
+	#Get closed glottis intervals for SQ - top threshold
+	selectObject: eggfilter
+	closedIs_sqt = nocheck Get closed glottis intervals: pitch_min, pitch_max, 1-sq_threshold, peak_threshold
+
+	objName$ = selected$()
+	p_sqt = 0.01
+	x_sqt = startsWith(objName$, "Electroglottogram")
+
+	while x_sqt == 1
+		closedIs_sqt = nocheck Get closed glottis intervals: pitch_min, pitch_max, 1-sq_threshold, peak_threshold + p
+		nocheck tg_CI_sqt = Into TextGrid
+		p_sqt = p + 0.01
+		objName$ = selected$()
+		x_sqt = startsWith(objName$, "Electroglottogram")
+	endwhile
+	tg_CI_sqt = Into TextGrid
+	removeObject: closedIs_sqt
+
+	### Merge two tiers
+
+	selectObject: tg_CI_sq
+	plusObject: tg_CI_sqt
+	tg_CI_SQ = Merge
+
+	removeObject: tg_CI_sq
+	removeObject: tg_CI_sqt
+
+	selectObject: tg_CI_SQ
+	Duplicate tier: 1, 3, "Merged"
+
+	nInt_sq = do ("Get number of intervals...", 2)
+
+	for s from 1 to nInt_sq-1
+
+		endtime_CI = Get end time of interval: 2, s
+		Insert boundary: 3, endtime_CI
+
+	endfor
+
+	#set interval text
+	nInt_t3 = do ("Get number of intervals...", 3)
+	for t from 1 to nInt_t3
+
+		starttime_t3 = Get start time of interval: 3, t
+		endtime_t3 = Get end time of interval: 3, t
+		midpoint = starttime_t3 + (endtime_t3 - starttime_t3)/2
+
+		top_int = Get interval at time: 1, midpoint
+		bottom_int = Get interval at time: 2, midpoint
+
+		top_lab$ = Get label of interval: 1, top_int
+		bottom_lab$ = Get label of interval: 2, bottom_int
+
+		starttime_t1 = Get start time of interval: 1, top_int
+		endtime_t1 = Get end time of interval: 1, top_int
+		midpoint_t1 = starttime_t1 + (endtime_t1 - starttime_t1)/2
+
+		#labels
+		if top_lab$ == "c" & bottom_lab$ == "" & midpoint < midpoint_t1
+			Set interval text: 3, t, "c"
+		elif top_lab$ == "c" & bottom_lab$ == "" & midpoint > midpoint_t1
+			Set interval text: 3, t, "o"
+		elif top_lab$ == "c" & bottom_lab$ == "c"
+			Set interval text: 3, t, "NA"
+		else
+			Set interval text: 3, t, ""
+		endif
+
+	endfor
+
+	#For checking purposes
+	Insert point tier: 4, "check"
+
+	#measurements
+	for t from 3 to nInt_t3
+
+		selectObject: tg_CI_SQ
+		current_lab$ = Get label of interval: 3, t
+		prev_lab$ = Get label of interval: 3, t-1
+		prevprev_lab$ = Get label of interval: 3, t-2
+
+		if current_lab$ == "o" & prev_lab$ == "NA" & prevprev_lab$ == "c"
+
+			c_starttime = Get start time of interval: 3, t-2
+			c_endtime = Get end time of interval: 3, t-2
+			c_dur = c_endtime - c_starttime
+
+			o_starttime = Get start time of interval: 3, t
+			o_endtime = Get end time of interval: 3, t
+			o_dur = o_endtime - o_starttime
+
+			sq = c_dur / o_dur
+
+			#For checking purposes, a point on tier four refers to where the SQ was taken
+			Insert point: 4, o_endtime, fixed$(sq,3)
+
+			if tier > 0
+				selectObject: textgrid_raw
+				current_interval = Get interval at time: tier, o_starttime
+				if current_interval > 0
+					intvl_label$ = Get label of interval: 1, current_interval
+				else
+					intvl_label$ = "NA"
+				endif
+			else
+				current_interval = 0
+				intvl_label$ = "NA"
+
+			endif
+
+			appendFile: output_file_sq$, filename$, ",", current_interval, ",", intvl_label$, ",", t, ",", t-2, ",", c_starttime, ",", c_endtime, ",", o_starttime, ",", o_endtime, ",", c_dur, ",", o_dur, ",", sq, newline$
+
+		endif
+
+
+
+
+	endfor
+
+
+###############################
 
 	# Use filtered egg signal for upcoming analysis
 	# do wavfile = wavfile_raw if we want to use the unfiltered signal
