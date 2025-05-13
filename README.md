@@ -13,7 +13,8 @@ The Praat script was written in Praat version 6.1.53. Please install a version o
 
 > [!WARNING]  
 > I have yet to test the script on a Mac, so I am not sure whether that might cause errors. Presumably the main problem there would be the direction of slashes in the directory path - like any other Praat script.
-> [!ANOTHER WARNING]  
+
+> [!WARNING]  
 > Some users have reached out with the problem of the script running for a long time with no output - in that case, I would recommend going back to the [first release](https://github.com/maypychan/praat-egg/releases/tag/v1.0) of the code (without SQ). I will fix this in the future, sorry!
   
 ## Details
