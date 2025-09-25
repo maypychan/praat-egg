@@ -68,4 +68,4 @@ I began writing this script because of my own personal need. In starting to do a
 * Tehrani., H. EggWorks. from http://phonetics.linguistics.ucla.edu/facilities/physiology/EGG.htm.
 
 ## Citing PrEgg
-Chan, May Pik Yu & Jianjing Kuang 2024. PrEgg:A free and open source Praat script for electroglottography measurements (v0.1). Retrieved on (date) from https://github.com/maypychan/praat-egg.
+Chan, M. P. Y., & Kuang, J. (2024). PrEgg: A free and open source Praat script for electroglottography measurements. The Journal of the Acoustical Society of America, 155(3_Supplement), A336-A336.
