@@ -1,9 +1,11 @@
-# Quick Introduction to PrEgg
+# Quick Introduction to Praat-Egg
 ## Introduction
 This is a [Praat](https://www.fon.hum.uva.nl/praat/) script designed to extract F0, Contact Quotient (CQ), Skew Quotient (SQ), and Peak Increase in Contact (PIC) values from EGG signals.
 
 ## Installation
-The Praat script was written in Praat version 6.1.53. Please install a version of Praat that is compatible.
+The Praat script (v1.0 and v1.1) was written in Praat version 6.1.53. 
+Release v1.2 is compatible with later versions of Praat, including version 6.4.43.
+Please install a version of Praat that is compatible.
 
 1. Download PrEgg.Praat and save it to your computer
 2. Open Praat by double clicking Praat.exe
@@ -12,10 +14,13 @@ The Praat script was written in Praat version 6.1.53. Please install a version o
 5. From the Praat script window, click `Run > Run`
 
 > [!WARNING]  
+> The script requires accurate pitch tracking for reliable output (or for the script to run properly at all)! If the script does not appear to be working, please make sure your pitch settings are tailored to the speaker/recordings that you are analyzing.
+
+> [!WARNING]  
 > I have yet to test the script on a Mac, so I am not sure whether that might cause errors. Presumably the main problem there would be the direction of slashes in the directory path - like any other Praat script.
 
 > [!WARNING]  
-> Some users have reached out with the problem of the script running for a long time with no output - in that case, I would recommend going back to the [first release](https://github.com/maypychan/praat-egg/releases/tag/v1.0) of the code (without SQ). I will fix this in the future, sorry!
+> Some users have reached out with the problem of the script running for a long time with no output - in that case, I would recommend going back to the [first release](https://github.com/maypychan/praat-egg/releases/tag/v1.0) of the code (without SQ). I will fix this in the future, sorry! (This requires an older version of Praat.)
   
 ## Details
 The script reads all the files with a ".wav" extension in a given folder with only EGG files, and optionally also reads in corresponding ".TextGrid" files of the same name. The script generates three ".csv" files, one called "EGG.csv", one called "EGG_deriv.csv", the last called "EGG_sq.csv".
