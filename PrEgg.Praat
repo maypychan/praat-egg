@@ -80,7 +80,7 @@ for j from 1 to number_files
 	eggfilter = High-pass filter: high_pass, smoothing
 
 	#Derivative Signal
-	deriv = Derivative: low_pass, smoothing, "yes"
+	deriv = Derivative: low_pass, smoothing, 0
 	#Save as WAV file: directory$ + "/" + filename$ + "_Deriv.wav"
 
 	#Get closed glottis intervals
@@ -93,14 +93,14 @@ for j from 1 to number_files
 
 	while x == 1
 		closedIs = nocheck Get closed glottis intervals: pitch_min, pitch_max, closing_threshold, peak_threshold + p
-		nocheck tg_CI = Into TextGrid
+		#nocheck tg_CI = Into TextGrid
 		p = p + 0.01
-		objName$ = selected$()
+		#tg_CI$ = selected$(TextGrid)
 		x = startsWith(objName$, "Electroglottogram")
 	endwhile
-	tg_CI = Into TextGrid
-	#Save as text file: directory$ + "/" + filename$ + "_CGintervals.TextGrid"
-	removeObject: closedIs
+	#tg_CI = Into TextGrid
+	Save as text file: directory$ + "/" + filename$ + "_CGintervals.TextGrid"
+	#removeObject: closedIs
 
 ############# SQ ##############
 
@@ -114,13 +114,14 @@ for j from 1 to number_files
 
 	while x_sq == 1
 		closedIs_sq = nocheck Get closed glottis intervals: pitch_min, pitch_max, sq_threshold, peak_threshold + p
-		nocheck tg_CI_sq = Into TextGrid
+		#nocheck tg_CI_sq = Into TextGrid
 		p_sq = p + 0.01
-		objName$ = selected$()
+		#tg_CI_sq$ = selected$(TextGrid)
 		x_sq = startsWith(objName$, "Electroglottogram")
 	endwhile
-	tg_CI_sq = Into TextGrid
-	removeObject: closedIs_sq
+	#tg_CI_sq = Into TextGrid
+	Save as text file: directory$ + "/" + filename$ + "_SQ_Low_intervals.TextGrid"
+	#removeObject: closedIs_sq
 
 	#Get closed glottis intervals for SQ - top threshold
 	selectObject: eggfilter
@@ -132,22 +133,23 @@ for j from 1 to number_files
 
 	while x_sqt == 1
 		closedIs_sqt = nocheck Get closed glottis intervals: pitch_min, pitch_max, 1-sq_threshold, peak_threshold + p
-		nocheck tg_CI_sqt = Into TextGrid
+		#nocheck tg_CI_sqt = Into TextGrid
 		p_sqt = p + 0.01
-		objName$ = selected$()
+		#tg_CI_sqt$ = selected$(TextGrid)
 		x_sqt = startsWith(objName$, "Electroglottogram")
 	endwhile
-	tg_CI_sqt = Into TextGrid
-	removeObject: closedIs_sqt
+	#tg_CI_sqt = Into TextGrid
+	Save as text file: directory$ + "/" + filename$ + "_SQ_Top_intervals.TextGrid"
+	#removeObject: closedIs_sqt
 
 	### Merge two tiers
 
-	selectObject: tg_CI_sq
-	plusObject: tg_CI_sqt
+	selectObject: closedIs_sq
+	plusObject: closedIs_sqt
 	tg_CI_SQ = Merge
 
-	removeObject: tg_CI_sq
-	removeObject: tg_CI_sqt
+	removeObject: closedIs_sq
+	removeObject: closedIs_sqt
 
 	selectObject: tg_CI_SQ
 	Duplicate tier: 1, 3, "Merged"
@@ -256,7 +258,7 @@ for j from 1 to number_files
 	tg_Peak = Into TextGrid
 
 	# Merge TextGrids
-	selectObject: tg_CI
+	selectObject: closedIs
 	plusObject: tg_Peak
 	tg_CIp = Merge
 	Insert point tier: 3, "ClsIntvlTimes"
@@ -265,7 +267,7 @@ for j from 1 to number_files
 	removeObject: egg
 	removeObject: eggfilter
 	removeObject: tg_Peak
-	removeObject: tg_CI
+	removeObject: closedIs
 	removeObject: pulses
 	removeObject: texttier
 
