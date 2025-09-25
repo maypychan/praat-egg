@@ -1,7 +1,12 @@
 #########################
 #### May Pik Yu Chan ####
 ## pikyu@sas.upenn.edu ##
-# last edited: 05/13/24 #
+#########################
+# Release Notes #
+# v1.2 (2025-09-25)
+# - Updated Derivative call to use numeric argument (Praat 6.4 requirement)
+# - Fixed bug in closed quotient section (lines 90–152) to accommodate new TextGrid output
+# - Verified compatibility with Praat version 6.4.43
 #########################
 
 form Directory:
