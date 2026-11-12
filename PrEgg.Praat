@@ -37,6 +37,9 @@ form Directory:
 	comment which tier? (0 if none):
 	real tier 1
 
+	comment Channel with EGG signal (this should be the same across all files)
+	real channel 1
+
 	comment interpolation of amplitude:
 	optionmenu interpolation 4
           option nearest
@@ -81,7 +84,7 @@ for j from 1 to number_files
 	endif
 
 	selectObject: wavfile_raw
-	egg = Extract Electroglottogram: 1, "no"
+	egg = Extract Electroglottogram: channel, "no"
 	eggfilter = High-pass filter: high_pass, smoothing
 
 	#Derivative Signal
